@@ -21,6 +21,7 @@ intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='p!')
 
 os.chdir(r'C:\Users\developer\Documents\ebot\venv')
+TOKEN = os.environ.get('BOT_TOKEN')
 
 @client.command()
 @commands.is_owner()
@@ -110,8 +111,4 @@ async def on_message(message):
 
     await client.process_commands(message)
 
-# tpark07 서버
-# client.run("MTA0OTg2NTQyODI0NTE1MTc3NQ.GkUQ24.bWiNNotQzpprPIS2or1sf9WCOwzc6xG4-1cxes")
-
-# Arkpia 서버
-client.run("MTA1NDI5MDc3NDg2NDQyOTA2Ng.GFK1xS.B-AcwAd6WrqgDg9RIbTE_Z86wB0HhYwtjcAJ4A")
+client.run(TOKEN)
