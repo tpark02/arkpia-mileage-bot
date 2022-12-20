@@ -19,7 +19,6 @@ servers = db["servers"]
 intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='p!')
 
-os.chdir(r'C:\Users\developer\Documents\ebot\venv')
 TOKEN = os.environ.get('BOT_TOKEN')
 
 @client.command()
