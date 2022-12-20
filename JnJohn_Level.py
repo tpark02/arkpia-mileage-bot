@@ -7,7 +7,6 @@ import re
 import os
 
 from discord.ext import commands
-from bson.objectid import ObjectId
 from pymongo import MongoClient
 
 
