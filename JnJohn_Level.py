@@ -38,8 +38,8 @@ async def level(ctx, member: discord.Member = None):
 async def on_member_join(member):
     print("member_join : " + str(member.name))
 
-    if member.id != 946318480272130078 and member.id != 977863630601195540:
-        return
+    #if member.id != 946318480272130078 and member.id != 977863630601195540:
+    #    return
 
     embed = discord.Embed(
         title="Welcome to Arkpia Point!",
@@ -59,8 +59,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.author.id != 946318480272130078 and message.author.id != 977863630601195540:
-        return
+    #if message.author.id != 946318480272130078 and message.author.id != 977863630601195540:
+    #    return
 
     # print("jnjohn id : " + str(message.guild.id))
     # print("channel id : " + str(message.channel.id))
