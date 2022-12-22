@@ -38,7 +38,9 @@ async def level(ctx, member: discord.Member = None):
 async def on_member_join(member):
     print("member_join : " + str(member.name))
 
-    if member.id is 863168632941969438 or member.id is 1054290774864429066:
+    if member.id is 863168632941969438 or \
+            member.id is 1054290774864429066 or \
+            member.id is 159985870458322944:
         return
     #if member.id != 946318480272130078 and member.id != 977863630601195540:
     #    return
@@ -61,7 +63,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.author.id is 863168632941969438 or message.author.id is 1054290774864429066:
+    if message.author.id is 863168632941969438 or \
+            message.author.id is 1054290774864429066 or \
+            message.author.id is 159985870458322944:
         return
     #if message.author.id != 946318480272130078 and message.author.id != 977863630601195540:
     #    return
