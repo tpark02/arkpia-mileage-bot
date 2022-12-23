@@ -23,16 +23,15 @@ TOKEN = os.environ.get('BOT_TOKEN')
 
 @client.command()
 @commands.is_owner()
-async def level(ctx, member: discord.Member = None):
-    if member == None:
-        member = ctx.author
+async def level(ctx):
+    res = userinfo.find_one({"_id": ctx.author.id})
+    if res is not None:
+        userLevel = res["level"]
+        mileage = res["mileage"]
+
+        await ctx.send(f"{ctx.author}'s level is {userLevel}. The current mileage is {mileage}.")
     else:
-        res = userinfo.find_one({ "_id": member.id })
-        if res is not None:
-            userLevel = res["level"]
-            await ctx.send(f"{ member.display_name }'s level is { userLevel }")
-        else:
-            await ctx.send(f"There is no level for { member.display_name }.")
+        await ctx.send(f"There is no data of {ctx.author}.")
 
 @client.event
 async def on_member_join(member):
