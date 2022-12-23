@@ -87,7 +87,7 @@ async def on_message(message):
 
         userinfo.update_one({ "_id" : message.author.id }, {"$set" : { "exp" : exp + 5 }})
 
-        print(f" _id : { message.author.id }, level_start : { level_start }, leve_end : { level_end }, mileage : { mileage }")
+        print(f" _id : { str(message.author) }, level_start : { level_start }, leve_end : { level_end }, mileage : { mileage }")
 
         if level_start < level_end:
             if 1 <= level_end < 5:
@@ -102,7 +102,7 @@ async def on_message(message):
             # user = await message.author.create_dm()
             embed = discord.Embed(
                 title="Level Up !",
-                description=f"You leveled up !! Your level is now { level_end }.",
+                description=f"{ str(message.author) } leveled up !! Your level is now { level_end }.",
                 color=discord.Color.gold()
             )
 
