@@ -28,9 +28,29 @@ async def level(ctx):
         userLevel = res["level"]
         mileage = res["mileage"]
 
-        await ctx.send(f"{ctx.author}'s level is {userLevel}. The current mileage is {mileage}.")
+        user = await ctx.author.create_dm()
+
+        embed = discord.Embed(
+            title="Arkpia Level Status",
+            description=f"{ctx.author}'s level is {userLevel}. The current mileage is {mileage}.",
+            color=discord.Color.gold()
+        )
+
+        embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+        embed.set_author(name="Arkpia", url="", icon_url="")
+        await user.send(embed=embed)
     else:
-        await ctx.send(f"There is no data of {ctx.author}.")
+        user = await ctx.author.create_dm()
+
+        embed = discord.Embed(
+            title="Arkpia Level Status",
+            description="There is no data",
+            color=discord.Color.gold()
+        )
+
+        embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+        embed.set_author(name="Arkpia", url="", icon_url="")
+        await user.send(embed=embed)
 
 @client.event
 async def on_member_join(member):
@@ -43,6 +63,8 @@ async def on_member_join(member):
     #if member.id != 946318480272130078 and member.id != 977863630601195540:
     #    return
 
+    user = await member.author.create_dm()
+
     embed = discord.Embed(
         title="Welcome to Arkpia Point!",
         description="When you chat, you will receive 5 exp! As you level up with exp, for each level, you will be rewarded with Arkpia Mileage! With Arkpia Mileage, you will be able to use it for upcoming Arkpia NFT, events and many more !",
@@ -52,7 +74,7 @@ async def on_member_join(member):
     embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
     embed.set_author(name="Arkpia", url="", icon_url="")
 
-    await member.send(embed=embed)
+    await user.send(embed=embed)
 
 @client.event
 async def on_message(message):
