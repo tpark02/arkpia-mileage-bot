@@ -22,7 +22,6 @@ client = commands.Bot(intents=intents, command_prefix='p!')
 TOKEN = os.environ.get('BOT_TOKEN')
 
 @client.command()
-@commands.is_owner()
 async def level(ctx):
     res = userinfo.find_one({"_id": ctx.author.id})
     if res is not None:
