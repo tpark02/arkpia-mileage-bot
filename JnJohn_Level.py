@@ -47,7 +47,7 @@ async def getMembers(ctx):
 async def Atotalrank(ctx):
     users = userinfo.find().sort("mileage", -1)
     em = discord.Embed(title = f"Top 5 Richest People" , description = "This is decided on the basis of raw money in the bank and wallet",color = discord.Color(0xfa43ee))
-    for i in range(0, 5):
+    for i in range(0, 20):
         name = users[i]["author"]
         mileage = users[i]["mileage"]
         em.add_field(name=f"{ name }", value=f"{ mileage }", inline= False)
@@ -86,6 +86,7 @@ async def Arank(ctx):
 
 @client.event
 async def on_member_join(member):
+    return;
     print("member_join : " + str(member.name))
 
     if member.id == 863168632941969438 or \
@@ -108,6 +109,10 @@ async def on_member_join(member):
 
 @client.event
 async def on_message(message):
+    if message.author.id != 1024322879149572156 \
+        and message.author.id != 977863630601195540: #tpark#7145 #tpark07#6034
+        return
+
     if message.author == client.user:
         return
 
@@ -123,8 +128,12 @@ async def on_message(message):
     res = userinfo.find_one({ "_id" : str(message.author.id) })
 
     if res is None:
-        userinfo.insert_one({ "_id" : str(message.author.id), "author" : str(message.author), "level" : 0, "exp" : 0, "mileage" : 0, "msg" : 0, "todayMsg" : 0, "todayExp" : 0 })
-        print(f"New Member Insert id : { message.author.id }, author : { message.author }")
+        # get current datetime
+        today = datetime.now()
+        # Get current ISO 8601 datetime in string format
+        iso_date = today.isoformat()
+        userinfo.insert_one({ "_id" : str(message.author.id), "author" : str(message.author), "level" : 0, "exp" : 0, "mileage" : 0, "msg" : 0, "todayMsg" : 0, "todayExp" : 0, "createdAt" : iso_date, "todayLevelUp" : 0 })
+        print(f"1. New Member Insert id : { message.author.id }, author : { message.author }")
     else:
         exp = res["exp"]
         todayExp = res["todayExp"]
@@ -132,27 +141,39 @@ async def on_message(message):
         mileage = res["mileage"]
         msgCnt = res["msg"]
         todayMsgCnt = res["todayMsg"]
+        todayLevelUp = res["todayLevelUp"]
 
         msgCnt = msgCnt + 1;
         todayMsgCnt = todayMsgCnt + 1;
+        print(
+            f"2. author: {message.author}, todayExp: {todayExp}, exp: {exp}, level_start: {level_start}, mileage: {mileage}, todayLevelUp: {todayLevelUp}")
 
-        if todayExp + 15 <= 200:
+        if todayExp + 15 <= 200 and todayLevelUp == 0:
             todayExp = todayExp + 15
             exp = exp + 15
+
             level_end, mile = getLvlMile(exp, mileage)
-            if level_start < level_end:
-                mileage = mileage + mile
-                userinfo.update_one({"_id": str(message.author.id) }, {
-                "$set": {"exp": exp, \
-                         "todayExp": todayExp, \
-                         "level": level_end, \
-                         "mileage": mileage, \
-                         "msg": msgCnt, \
-                         "todayMsg": todayMsgCnt}
-                })
-                print(f" author : {str(message.author)}, level_start : {level_start}, leve_end : {level_end}, exp : {exp}, mileage : {mileage}, todayExp : {todayExp}, todayMsg : {todayMsgCnt}")
+
+            if level_start != level_end:
+                print(f"3. Level Up ! level : { level_end }")
+                todayLevelUp = 1
+
+            #if level_start < level_end:
+            mileage = mileage + mile
+            userinfo.update_one({"_id": str(message.author.id) }, {
+            "$set": {"exp": exp, \
+                     "todayExp": todayExp, \
+                     "level": level_end, \
+                     "mileage": mileage, \
+                     "msg": msgCnt, \
+                     "todayMsg": todayMsgCnt, \
+                     "todayLevelUp": todayLevelUp}
+            })
+            print(f"4. author : {str(message.author)}, level_start : {level_start}, leve_end : {level_end}, exp : {exp}, mileage : {mileage}, todayExp : {todayExp}, todayMsg : {todayMsgCnt}, todayLevelUp: {todayLevelUp}")
         else:
-            userinfo.update_one({"_id": str(message.author.id) }, {"$set": {"todayMsg": todayMsgCnt }})
+            userinfo.update_one({"_id": str(message.author.id) }, {"$set": {"todayMsgCnt": todayMsgCnt }})
+            print(f"5. author : {str(message.author)}, todayMsgCnt: {todayMsgCnt}")
+
     await client.process_commands(message)
 
 def convertTime(t: float):
