@@ -482,5 +482,4 @@ def getLvlMile(exp):
         level_end = 100
         mileage += 645.6
     return level_end, mileage
-# client.run(TOKEN)
-client.run("MTA1NDI5MDc3NDg2NDQyOTA2Ng.GFK1xS.B-AcwAd6WrqgDg9RIbTE_Z86wB0HhYwtjcAJ4A");
+client.run(TOKEN)
