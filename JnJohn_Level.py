@@ -5,7 +5,10 @@ from pymongo import MongoClient
 from datetime import datetime
 import time
 
-cluster = MongoClient(f"mongodb+srv://developers:1234@cluster0.a8ug08d.mongodb.net/?retryWrites=true&w=majority")
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+DB_TOKEN = os.environ.get('DB_TOKEN')
+
+cluster = MongoClient(DB_TOKEN)
 db = cluster["discord-bot"]
 userinfo = db["userinfo"]
 loginfo = db["rewardloginfo"]
@@ -13,7 +16,7 @@ loginfo = db["rewardloginfo"]
 intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='/')
 
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
+
 @client.command()
 @commands.has_role(953565602885304362)
 async def Areward(ctx, id : int, amount : int, code : str):
