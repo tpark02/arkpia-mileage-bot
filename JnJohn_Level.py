@@ -13,7 +13,7 @@ loginfo = db["rewardloginfo"]
 intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='/')
 
-TOKEN = os.environ.get('BOT_TOKEN')
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
 @client.command()
 @commands.has_role(953565602885304362)
 async def Areward(ctx, id : int, amount : int, code : str):
