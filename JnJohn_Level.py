@@ -20,7 +20,14 @@ client = commands.Bot(intents=intents, command_prefix='/')
 @client.command()
 @commands.has_role(953565602885304362)
 async def Areward(ctx, id : int, amount : int, code : str):
-    print(type(id))
+    res = userinfo.find_one({"_id": str(id)})
+
+    if res is None:
+        print("No log info " + str(id))
+    else:
+        current_mileage = res['mileage']
+        userinfo.update_one({"_id": str(id)}, {"$set": {"mileage": current_mileage + amount}})
+
     name = ""
     for m in ctx.message.guild.members:
         if m.id == id:
