@@ -1,9 +1,9 @@
 import discord
-import os
-from discord.ext import commands, tasks
+from discord.ext import commands
 from pymongo import MongoClient
 from datetime import datetime
 import time
+import os
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 DB_TOKEN = os.environ.get('DB_TOKEN')
@@ -16,10 +16,9 @@ loginfo = db["rewardloginfo"]
 intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='/')
 
-
-@client.command()
+@client.tree.command(name = "areward", description = "My first application Command", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
-async def Areward(ctx, id : int, amount : int, code : str):
+async def areward(inter: discord.Interaction, id : str, amount : int, code : str):
     res = userinfo.find_one({"_id": str(id)})
 
     if res is None:
@@ -29,53 +28,53 @@ async def Areward(ctx, id : int, amount : int, code : str):
         userinfo.update_one({"_id": str(id)}, {"$set": {"mileage": current_mileage + amount}})
 
     name = ""
-    for m in ctx.message.guild.members:
+    for m in inter.guild.members:
         if m.id == id:
             name = m.name + "#" + m.discriminator
             break
     loginfo.insert_one({ "userid" : str(id), "name" : name, "amount" : amount, "code" : code })
+    await inter.response.send_message(f"userid : {str(id)}, name : {name}, amount : {amount}, code : {code} is inserted.")
 
-@client.command()
+@client.tree.command(name = "getmembers", description = "My first application Command", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
-async def getMembers(ctx):
-    print(len(ctx.message.guild.members))
+async def getmembers(inter):
+    print(len(inter.message.guild.members))
     with open('member.txt', 'w', encoding='utf-8') as f:
-        for m in ctx.message.guild.members:
+        for m in inter.message.guild.members:
             #print(str(m.id) + ":" + str(m.name))
             f.write(str(m.name.replace(" ", "_") + "#" + m.discriminator) + "::" + str(m.id) + "\n")
 
-@client.command()
+@client.tree.command(name = "atotalrank", description = "My first application Command", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
-async def Atotalrank(ctx):
+async def atotalrank(inter):
     users = userinfo.find().sort("mileage", -1)
     em = discord.Embed(title = f"Top 20 Richest People" , description = "This is decided on the basis of raw money in the bank and wallet",color = discord.Color.gold())
     for i in range(0, 20):
         name = users[i]["author"]
         mileage = users[i]["mileage"]
         em.add_field(name=f"#{i+1}. { name }", value=f"    { mileage }", inline=False)
-    await ctx.send(embed = em)
+    await inter.response.send_message(embed = em)
 
-@client.command()
+
+@client.tree.command(name = "arank", description = "My first application Command", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
-async def Arank(ctx):
-    res = userinfo.find_one({"_id": str(ctx.author.id) })
-    print(str(ctx.author.id))
+async def arank(inter):
+    res = userinfo.find_one({"_id": str(inter.user.id) })
+    print(str(inter.user.id))
     if res is not None:
         userLevel = res["level"]
         mileage = res["mileage"]
 
         embed = discord.Embed(
             title="Arkpia Level Status",
-            description=f"{ctx.author}'s level is {userLevel}. The current mileage is {mileage}.",
+            description=f"{ inter.user.name }'s level is {userLevel}. The current mileage is {mileage}.",
             color=discord.Color.gold()
         )
 
         embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
-        embed.set_author(name="Arkpia", url="", icon_url="")
-        await ctx.channel.send(embed=embed)
+        embed.set_author(name="Arkpia", url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png", icon_url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+        await inter.response.send_message(embed=embed)
     else:
-        # user = await ctx.author.create_dm()
-
         embed = discord.Embed(
             title="Arkpia Level Status",
             description="There is no data",
@@ -83,8 +82,8 @@ async def Arank(ctx):
         )
 
         embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
-        embed.set_author(name="Arkpia", url="", icon_url="")
-        await ctx.channel.send(embed=embed)
+        embed.set_author(name="Arkpia", url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png", icon_url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+        await inter.response.send_message(embed=embed)
 
 @client.event
 async def on_member_join(member):
@@ -108,6 +107,10 @@ async def on_member_join(member):
     embed.set_author(name="Arkpia", url="", icon_url="")
 
     await user.send(embed=embed)
+@client.event
+async def on_ready():
+    await client.tree.sync(guild=discord.Object(id=953562711365673000))
+    print("Ready!")
 
 @client.event
 async def on_message(message):
@@ -492,4 +495,5 @@ def getLvlMile(exp):
         level_end = 100
         mileage += 645.6
     return level_end, mileage
+
 client.run(BOT_TOKEN)
