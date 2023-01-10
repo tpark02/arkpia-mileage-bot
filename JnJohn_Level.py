@@ -16,7 +16,7 @@ loginfo = db["rewardloginfo"]
 intents = discord.Intents.all()
 client = commands.Bot(intents=intents, command_prefix='/')
 
-@client.tree.command(name = "areward", description = "My first application Command", guild=discord.Object(id=953562711365673000))
+@client.command()
 @commands.has_role(953565602885304362)
 async def areward(inter: discord.Interaction, id : str, amount : int, code : str):
     res = userinfo.find_one({"_id": str(id)})
@@ -35,7 +35,7 @@ async def areward(inter: discord.Interaction, id : str, amount : int, code : str
     loginfo.insert_one({ "userid" : str(id), "name" : name, "amount" : amount, "code" : code })
     await inter.response.send_message(f"userid : {str(id)}, name : {name}, amount : {amount}, code : {code} is inserted.")
 
-@client.tree.command(name = "getmembers", description = "My first application Command", guild=discord.Object(id=953562711365673000))
+@client.command()
 @commands.has_role(953565602885304362)
 async def getmembers(inter):
     print(len(inter.message.guild.members))
@@ -44,19 +44,20 @@ async def getmembers(inter):
             #print(str(m.id) + ":" + str(m.name))
             f.write(str(m.name.replace(" ", "_") + "#" + m.discriminator) + "::" + str(m.id) + "\n")
 
-@client.tree.command(name = "atotalrank", description = "My first application Command", guild=discord.Object(id=953562711365673000))
+@client.tree.command(name = "atotalrank", description = "Show Top 20 Ranker", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
 async def atotalrank(inter):
     users = userinfo.find().sort("mileage", -1)
-    em = discord.Embed(title = f"Top 20 Richest People" , description = "This is decided on the basis of raw money in the bank and wallet",color = discord.Color.gold())
+    em = discord.Embed(title = f"Top 20 Richest People" , description = "",color = discord.Color.gold())
+    await inter.response.defer()
     for i in range(0, 20):
         name = users[i]["author"]
         mileage = users[i]["mileage"]
         em.add_field(name=f"#{i+1}. { name }", value=f"    { mileage }", inline=False)
-    await inter.response.send_message(embed = em)
+    await inter.followup.send(embed = em)
 
 
-@client.tree.command(name = "arank", description = "My first application Command", guild=discord.Object(id=953562711365673000))
+@client.tree.command(name = "arank", description = "My level and mileage", guild=discord.Object(id=953562711365673000))
 @commands.has_role(953565602885304362)
 async def arank(inter):
     res = userinfo.find_one({"_id": str(inter.user.id) })
@@ -107,6 +108,7 @@ async def on_member_join(member):
     embed.set_author(name="Arkpia", url="", icon_url="")
 
     await user.send(embed=embed)
+    
 @client.event
 async def on_ready():
     await client.tree.sync(guild=discord.Object(id=953562711365673000))
