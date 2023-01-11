@@ -18,7 +18,7 @@ client = commands.Bot(intents=intents, command_prefix='/')
 
 @client.command()
 @commands.has_role(953565602885304362)
-async def areward(inter: discord.Interaction, id : str, amount : int, code : str):
+async def areward(ctx, id : str, amount : int, code : str):
     res = userinfo.find_one({"_id": str(id)})
 
     if res is None:
@@ -28,24 +28,25 @@ async def areward(inter: discord.Interaction, id : str, amount : int, code : str
         userinfo.update_one({"_id": str(id)}, {"$set": {"mileage": current_mileage + amount}})
 
     name = ""
-    for m in inter.guild.members:
-        if m.id == id:
+    for m in ctx.guild.members:
+        print(m.name + '#' + m.discriminator)
+        if str(m.id) == str(id):
             name = m.name + "#" + m.discriminator
             break
     loginfo.insert_one({ "userid" : str(id), "name" : name, "amount" : amount, "code" : code })
-    await inter.response.send_message(f"userid : {str(id)}, name : {name}, amount : {amount}, code : {code} is inserted.")
+    await ctx.channel.send(f"userid : {str(id)}, name : {name}, amount : {amount}, code : {code} is inserted.")
 
 @client.command()
 @commands.has_role(953565602885304362)
-async def getmembers(inter):
-    print(len(inter.message.guild.members))
+async def getmembers(ctx):
+    print(len(ctx.message.guild.members))
     with open('member.txt', 'w', encoding='utf-8') as f:
-        for m in inter.message.guild.members:
+        for m in ctx.guild.members:
             #print(str(m.id) + ":" + str(m.name))
             f.write(str(m.name.replace(" ", "_") + "#" + m.discriminator) + "::" + str(m.id) + "\n")
 
 @client.tree.command(name = "atotalrank", description = "Show Top 20 Ranker", guild=discord.Object(id=953562711365673000))
-@commands.has_role(953565602885304362)
+#@commands.has_role(953565602885304362)
 async def atotalrank(inter):
     users = userinfo.find().sort("mileage", -1)
     em = discord.Embed(title = f"Top 20 Richest People" , description = "",color = discord.Color.gold())
@@ -58,7 +59,7 @@ async def atotalrank(inter):
 
 
 @client.tree.command(name = "arank", description = "My level and mileage", guild=discord.Object(id=953562711365673000))
-@commands.has_role(953565602885304362)
+#@commands.has_role(953565602885304362)
 async def arank(inter):
     res = userinfo.find_one({"_id": str(inter.user.id) })
     print(str(inter.user.id))
@@ -68,7 +69,7 @@ async def arank(inter):
 
         embed = discord.Embed(
             title="Arkpia Level Status",
-            description=f"{ inter.user.name }'s level is {userLevel}. The current mileage is {mileage}.",
+            description=f"{ inter.user.name }#{ inter.user.discriminator }'s level is {userLevel}. The current mileage is {mileage}.",
             color=discord.Color.gold()
         )
 
@@ -87,27 +88,26 @@ async def arank(inter):
         await inter.response.send_message(embed=embed)
 
 @client.event
-async def on_member_join(member):
-    return;
-    print("member_join : " + str(member.name))
-
-    if member.id == 863168632941969438 or \
-            member.id == 1054290774864429066 or \
-            member.id == 159985870458322944:
-        return
-
-    user = await member.author.create_dm()
-
-    embed = discord.Embed(
-        title="Welcome to Arkpia Point!",
-        description="When you chat, you will receive 5 exp! As you level up with exp, for each level, you will be rewarded with Arkpia Mileage! With Arkpia Mileage, you will be able to use it for upcoming Arkpia NFT, events and many more !",
-        color=discord.Color.gold()
-    )
-
-    embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
-    embed.set_author(name="Arkpia", url="", icon_url="")
-
-    await user.send(embed=embed)
+# async def on_member_join(member):
+#     print("member_join : " + str(member.name))
+# 
+#     if member.id == 863168632941969438 or \
+#             member.id == 1054290774864429066 or \
+#             member.id == 159985870458322944:
+#         return
+# 
+#     user = await member.author.create_dm()
+# 
+#     embed = discord.Embed(
+#         title="Welcome to Arkpia Point!",
+#         description="When you chat, you will receive 5 exp! As you level up with exp, for each level, you will be rewarded with Arkpia Mileage! With Arkpia Mileage, you will be able to use it for upcoming Arkpia NFT, events and many more !",
+#         color=discord.Color.gold()
+#     )
+# 
+#     embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+#     embed.set_author(name="Arkpia", url="", icon_url="")
+# 
+#     await user.send(embed=embed)
     
 @client.event
 async def on_ready():
@@ -165,6 +165,17 @@ async def on_message(message):
                 print(f"3. Level Up ! level_start: { level_start } level_end : { level_end }")
                 # todayLevelUp = 1
                 mileage = mileage + mile
+
+                embed = discord.Embed(
+                    title="Arkpia Level Status",
+                    description=f"{ message.author } reached { level_end } !! The current mileage is { mileage }.",
+                    color=discord.Color.gold()
+                )
+
+                embed.set_thumbnail(url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+                embed.set_author(name="Arkpia", url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png",
+                                 icon_url="https://i.ibb.co/dW7W5Lv/arkpia-symbol.png")
+                await message.channel.send(embed=embed)
 
             userinfo.update_one({"_id": str(message.author.id) }, {
             "$set": {"exp": exp, \
@@ -497,5 +508,6 @@ def getLvlMile(exp):
         level_end = 100
         mileage += 645.6
     return level_end, mileage
+
 
 client.run(BOT_TOKEN)
